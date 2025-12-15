@@ -1,0 +1,32 @@
+name: "Build for Multiple Platforms & Create Release"
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        platform: ["linux-64"]
+      fail-fast: true
+
+    steps:
+      - name: Check out the code
+        uses: actions/checkout@v3
+
+      - name: Run Pixi-Pack
+        uses: wytamma/pixi-pack-action@v5.1
+        with:
+          platform: ${{ matrix.platform }}
+
+      - name: Upload to Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: "${{ github.event.repository.name }}-*.sh"
